@@ -1,0 +1,111 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etoak.mapper.CarMapper">
+	
+	<insert id="addCar" parameterType="Car">
+		INSERT INTO t_springmvc_car(
+			brand,series,price,licensing_time,level,gearbox,
+			output_volume,mileage,
+			location,pic,summary,
+			create_time
+		)VALUES(
+			#{brand},
+			#{series},
+			#{price},
+			#{licensingTime},
+			#{level},
+			#{gearbox},
+			#{outputVolume},
+			#{mileage},
+			#{location},
+			#{pic},
+			#{summary},
+			NOW()
+		)
+	
+	</insert>
+	
+	<select id="queryBrandList" resultType="string">
+		SELECT brand
+		FROM t_springmvc_car
+		GROUP BY brand
+	</select>
+	
+	<select id="querySeriesByBrand" parameterType="string" resultType="string">
+		SELECT series
+		FROM t_springmvc_car
+		<where>
+			<if test="brand != null and brand != '' ">
+				brand =#{brand}
+			</if>
+		</where>
+		GROUP BY series
+		<if test="brand == null or brand == ''">
+		limit 10
+		</if>
+	</select>
+
+	<select id="queryList" parameterType="CarVo" resultType="CarVo">
+	SELECT
+	t.id,
+	t.brand,
+	t.series,
+	t.price,
+	t.licensing_time AS licensingTime,
+	t.LEVEL,
+	t2.`name` AS levelName,
+	t.gearbox,
+	t3.NAME AS gearboxName,
+	t.output_volume AS outputVolume,
+	t4.NAME AS outputVolumeName,
+	t.mileage,
+	t.location,
+	t.pic,
+	t.summary,
+	t.create_time AS createTime 
+	FROM t_springmvc_car t
+	LEFT JOIN t_springmvc_dict t2 ON t.`level` = t2.`value` AND t2.group_id = 'level'
+	LEFT JOIN t_springmvc_dict t3 ON t.gearbox = t3.`value` AND t3.group_id = 'gearbox'
+	LEFT JOIN t_springmvc_dict t4 ON t.output_volume = t4.`value` AND t4.group_id = 'output_volume'
+	<where>
+		<if test="brand !=null and brand !='' ">
+			AND t.brand = #{brand}
+		</if>
+		<if test = "series !=null and series !='' ">
+			AND t.series =#{series}
+		</if>
+		<if test = "level !=null and level !='' ">
+			AND t.level =#{level}
+		</if>
+		<if test = "gearbox !=null and gearbox !='' ">
+			AND t.gearbox =#{gearbox}
+		</if>
+		<if test = "outputVolume !=null and outputVolume !='' ">
+			AND t.output_volume =#{outputVolume}
+		</if>
+		<if test = "location !=null and location !='' ">
+			AND t.location =#{location}
+		</if>
+		<if test="priceMapList != null and priceMapList.size() != 0">
+				AND
+			<foreach collection="priceMapList" item="priceMap" open="(" close=")" separator="OR">
+				price BETWEEN #{priceMap.start} AND #{priceMap.end}
+			</foreach>
+		</if>
+		<if test="startDate != null and startDate !='' ">
+			AND str_to_date(t.licensing_time, '%Y-%m') 
+					>= DATE_SUB(curdate(), INTERVAL #{startDate} YEAR)
+		</if>
+		<if test="endDate != null and endDate !='' ">
+			<![CDATA[
+			AND str_to_date(t.licensing_time,'%Y-%m') 
+				<= DATE_SUB(curdate(), INTERVAL #{endDate} YEAR)
+			]]>
+		</if>	
+		
+		
+	</where>
+</select>
+
+</mapper>

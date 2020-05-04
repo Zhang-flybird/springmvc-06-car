@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-4.2.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd">
+
+	<context:component-scan base-package="com.etoak">
+		<!-- spring mvc要加载的注解 -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController" />
+		<context:include-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+
+		<!-- spring mvc要排除的注解@Service、@Repository -->
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service" />
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository" />
+	</context:component-scan>
+
+	<mvc:annotation-driven></mvc:annotation-driven>
+	<mvc:default-servlet-handler />
+
+	<!-- 图片访问 -->
+	<mvc:resources location="file:d:/upload/" mapping="/pics/**" />
+
+	<!-- 视图解析器 -->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/pages/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- 文件上传解析器 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="maxUploadSize" value="2097152" />
+	</bean>
+
+	<!-- 配置拦截器 -->
+	<!-- 	
+		<mvc:interceptors>
+			<mvc:interceptor>
+				<mvc:mapping path="/**" />
+				不拦截验证码、登录相关、静态文件
+				<mvc:exclude-mapping path="/user/code" />
+				<mvc:exclude-mapping path="/user/toLogin" />
+				<mvc:exclude-mapping path="/user/login" />
+				<mvc:exclude-mapping path="/static/**" />
+				<bean class="com.etoak.interceptor.LoginInterceptor" />
+			</mvc:interceptor>
+		</mvc:interceptors>
+	-->
+
+	<!-- 访问项目跟路径：localhost:8080/contextPath，直接跳转到index页面 -->
+	<mvc:view-controller path="/" view-name="index" />
+
+</beans>

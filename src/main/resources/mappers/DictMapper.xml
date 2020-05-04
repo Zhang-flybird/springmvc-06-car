@@ -1,0 +1,17 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.etoak.mapper.DictMapper">
+	<cache flushInterval="1800000"></cache>
+	<select id="queryList" parameterType="string" resultType="Dict">
+		SELECT id,
+			   group_id AS groupId,
+			   name,
+			   value,
+			   sort
+		  FROM t_springmvc_dict
+		 WHERE group_id = #{value}
+		 ORDER BY sort ASC  
+	</select>
+	
+</mapper>
